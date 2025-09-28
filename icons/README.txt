@@ -1,0 +1,1 @@
+Optional: put a 256x256 Windows .ico file here as icon.ico for a custom installer icon.
