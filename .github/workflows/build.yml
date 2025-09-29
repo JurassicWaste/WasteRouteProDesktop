@@ -1,0 +1,42 @@
+name: Build Windows Desktop App
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show repo layout (PowerShell syntax)
+        shell: pwsh
+        run: |
+          Write-Host "Top-level files:"
+          Get-ChildItem -Force
+          Write-Host "--- package.json (preview) ---"
+          if (Test-Path package.json) {
+            Get-Content package.json
+          } else {
+            Write-Host "NO package.json at repo root!"
+          }
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        shell: pwsh
+        run: npm install
+
+      - name: Build installer
+        shell: pwsh
+        run: npm run dist
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WasteRouteProInstaller
+          path: dist/*.exe
