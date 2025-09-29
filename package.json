@@ -7,11 +7,11 @@
   "license": "MIT",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder",
-    "pack": "electron-builder --dir"
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
   },
   "devDependencies": {
-    "electron": "^31.3.1",
+    "electron": "^31.7.7",
     "electron-builder": "^24.13.3"
   },
   "build": {
@@ -21,19 +21,11 @@
       "main.js",
       "preload.js",
       "renderer/**",
-      "icons/**",
-      "LICENSE",
       "README.md"
     ],
-    "directories": {
-      "buildResources": "icons"
-    },
     "asar": true,
     "win": {
-      "target": [
-        "nsis"
-      ],
-      "icon": "icons/icon.ico",
+      "target": ["nsis"],
       "artifactName": "WasteRoutePro-Setup-${version}.exe"
     },
     "nsis": {
