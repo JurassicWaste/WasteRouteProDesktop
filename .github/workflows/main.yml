@@ -6,23 +6,21 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    env:
+      # hard-disable auto code-sign & publishing in CI
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES: "true"
+      ELECTRON_BUILDER_DEBUG: "true"
+      DEBUG: "electron-builder"
+      CI: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+      - name: Show repo layout
+        run: |
+          echo "Top-level files:"; dir
+          echo "--- package.json (preview) ---"
+          if exist package.json (type package.json) else (echo "NO package.json at repo root!")
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build installer
-        run: npm run dist
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: WasteRouteProInstaller
-          path: dist/*.exe
+     
