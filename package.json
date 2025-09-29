@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Minimal Electron desktop wrapper for exeterwasteremoval.co.uk",
   "main": "main.js",
-  "author": "You",
+  "author": "Jurassic Waste Ltd",
   "license": "MIT",
   "scripts": {
     "start": "electron .",
