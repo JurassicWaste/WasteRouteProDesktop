@@ -6,20 +6,30 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    env:
+      # Disable auto code-sign & publishing in CI
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      ELECTRON_BUILDER_DISABLE_AUTO_DOWNLOAD: "false"
+      ELECTRON_BUILDER_DEBUG: "true"
+      DEBUG: "electron-builder"
+      CI: "true"
+      # Avoid hard links on Windows file systems that can cause permission issues
+      USE_HARD_LINKS: "false"
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Show repo layout (PowerShell syntax)
+      - name: Show repo layout (PowerShell)
         shell: pwsh
         run: |
           Write-Host "Top-level files:"
           Get-ChildItem -Force
-          Write-Host "--- package.json (preview) ---"
           if (Test-Path package.json) {
-            Get-Content package.json
+            Write-Host "`n--- package.json present ---"
           } else {
-            Write-Host "NO package.json at repo root!"
+            Write-Error "package.json not found at repo root."
+            exit 1
           }
 
       - name: Use Node.js
@@ -27,16 +37,48 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Install NSIS (required for Windows installer)
+        shell: pwsh
+        run: choco install nsis -y
+
       - name: Install dependencies
         shell: pwsh
-        run: npm install
+        run: |
+          npm config set fund false
+          npm ci 2>$null
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "npm ci failed; falling back to npm install"
+            npm install --legacy-peer-deps
+          }
 
-      - name: Build installer
+      # 🔧 Upgrade builder tools to latest to avoid runner image mismatches
+      - name: Upgrade electron-builder & app-builder-bin
         shell: pwsh
-        run: npm run dist
+        run: |
+          npm install --save-dev electron-builder@latest app-builder-bin@latest
 
-      - name: Upload artifact
+      # ✅ Unblock the app-builder.exe that sometimes gets Mark-of-the-Web / ADS
+      - name: Unblock app-builder.exe
+        shell: pwsh
+        run: |
+          $exe = "node_modules\app-builder-bin\win\x64\app-builder.exe"
+          if (Test-Path $exe) {
+            Unblock-File $exe
+            Write-Host "Unblocked $exe"
+          } else {
+            Write-Host "app-builder.exe not found yet (builder may download it later)."
+          }
+
+      - name: Build (electron-builder) with debug, no publish/sign
+        shell: pwsh
+        run: |
+          npx electron-builder --win --x64 --publish never
+
+      - name: Upload dist artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: WasteRouteProInstaller
-          path: dist/*.exe
+          name: WasteRouteProDist
+          path: |
+            dist/**
+            builder-effective-config.yaml
