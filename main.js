@@ -2,7 +2,7 @@
 const { app, BrowserWindow, shell } = require("electron");
 const path = require("path");
 
-const APP_URL = "https://exeterwasteremoval.co.uk";
+const APP_URL = "https://ops.jurassic-waste.co.uk";
 
 let mainWindow;
 
