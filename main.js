@@ -13,7 +13,7 @@ function createMainWindow() {
     minWidth: 1000,
     minHeight: 700,
     backgroundColor: "#111827",
-    title: "WasteRoute Pro – Dispatcher",
+    title: "Jurassic Waste Operations",
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
